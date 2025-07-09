@@ -1,0 +1,72 @@
+apiVersion: harness.io/v1
+kind: Workflow
+type: harness_project
+identifier: gitxworkflow
+name: Gitx-workflow
+owner: user:account/natstestoct8@mailinator.com
+spec:
+  output:
+    links:
+    - title: View Environment Logs
+      url: https://your-log-service-url/${{ steps.development_step.output || steps.production_step.output
+        || steps.non_production_step.output }}
+  lifecycle: experimental
+  parameters:
+  - title: Environment Selection
+    required:
+    - environment
+    properties:
+      token:
+        title: Harness Token
+        type: string
+        ui:widget: password
+        ui:field: HarnessAuthToken
+      service_name:
+        title: Service Name
+        type: string
+        description: Mention the project name
+      environment:
+        title: Select Environment
+        type: string
+        description: Choose the environment for this operation
+        enum:
+        - development
+        - staging
+        - production
+        - prod
+    type: object
+  steps:
+  - id: development_step
+    name: Only development environments
+    action: debug:log
+    input:
+      url:
+      - Harness Pipeline URL
+      inputset:
+        service_name: ${{ parameters.service_name }}
+      apikey: ${{ parameters.token }}
+      message: This is a development or staging step.
+    if: ${{ parameters.environment === 'staging' or parameters.environment === 'development'
+      }}
+  - id: production_step
+    name: Only production environments
+    if: ${{ parameters.environment === 'prod' or parameters.environment === 'production'
+      }}
+    action: debug:log
+    input:
+      message: This is a production step.
+  - id: non_production_step
+    name: Non-production environments
+    if: ${{ parameters.environment !== 'prod' and parameters.environment !== 'production'
+      }}
+    action: debug:log
+    input:
+      message: This is a non-production step.
+  ownedBy:
+  - user:account/natstestoct8@mailinator.com
+metadata:
+  annotations:
+    backstage.io/source-location: url:https://github.com/harness-community/idp-samples/tree/main/workflow-examples/
+  tags:
+  - java
+  - data
