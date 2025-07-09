@@ -1,0 +1,13 @@
+apiVersion: harness.io/v1
+kind: Component
+type: service
+identifier: sdscore
+name: sd-score
+owner: group:account/AAAFF
+spec:
+  lifecycle: experimental
+  ownedBy:
+  - group:account/AAAFF
+metadata:
+  tags:
+  - java
